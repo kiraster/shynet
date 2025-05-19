@@ -49,10 +49,11 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev postgresql-dev libress
 	apk --purge del .build-deps
 
 # Setup user group
-RUN addgroup --system -g $GF_GID appgroup && \
-	adduser appuser --system --uid $GF_UID -G appgroup && \
-	mkdir -p /var/local/shynet/db/ && \
-	chown -R appuser:appgroup /var/local/shynet
+# RUN addgroup --system -g $GF_GID appgroup && \
+# 	adduser appuser --system --uid $GF_UID -G appgroup && \
+# 	mkdir -p /var/local/shynet/db/ && \
+# 	chown -R appuser:appgroup /var/local/shynet
+RUN mkdir -p /var/local/shynet/db/
 
 # Install Shynet
 COPY shynet .
@@ -60,7 +61,7 @@ RUN python manage.py collectstatic --noinput && \
 	python manage.py compilemessages
 
 # Launch
-USER appuser
+# USER appuser
 EXPOSE 8080
 HEALTHCHECK CMD bash -c 'wget -o /dev/null -O /dev/null --header "Host: ${ALLOWED_HOSTS%%,*}" "http://127.0.0.1:${PORT:-8080}/healthz/?format=json"'
 CMD [ "./entrypoint.sh" ]
